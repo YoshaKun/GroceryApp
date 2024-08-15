@@ -60,6 +60,47 @@ struct MainView: View {
                 // MARK: - List / Grid view
                 createCustomList(isList: viewModel.isList)
             }
+            
+            // MARK: - Busket View
+            VStack {
+                Spacer()
+                
+                ZStack {
+                    RoundedRectangle(cornerRadius: 40)
+                        .frame(height: 130)
+                        .padding(.bottom, -55)
+                        .foregroundStyle(Color.white)
+                        .shadow(radius: 10)
+                    
+                    Button {
+                        
+                    } label: {
+                        ZStack {
+                            HStack {
+                                Image(.busket)
+                                    .foregroundColor(.white)
+                                    .padding(.leading, 20)
+                                
+                                Spacer()
+                                
+                                Text("190 ₽")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.trailing, 20)
+                            }
+                            .frame(height: 50)
+                            .background(Color.customGreen)
+                            .cornerRadius(25)
+                            .padding(.horizontal, 16)
+                            
+                            Text("Корзина")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.bottom, -10)
+                }
+            }
         }
     }
     

@@ -16,7 +16,7 @@ struct GroceryCustomCell: View {
     let item: GroceryItemModel
     
     @State var selectedUnit: String = "Кг"
-    @State var quantity: Double = 0.1
+    @State var quantity: Double = 1
     @State var isBusketHidden: Bool = false
     @State var isSegmentedControlHidden: Bool = true
     @State var isFav: Bool = false
@@ -379,9 +379,9 @@ struct GroceryCustomCell: View {
     private func chooseCountOfProduct() -> some View {
         HStack {
             Button(action: {
-                if quantity > 0.1 {
-                    quantity -= 0.1
-                } else if quantity <= 0.1 {
+                if quantity > 1 {
+                    quantity -= 1
+                } else if quantity <= 1 {
                     withAnimation {
                         isBusketHidden.toggle()
                         isSegmentedControlHidden.toggle()
@@ -397,7 +397,7 @@ struct GroceryCustomCell: View {
             Spacer()
             
             VStack {
-                Text("\(quantity, specifier: "%.1f") \(selectedUnit.lowercased())")
+                Text("\(quantity, specifier: "%g") \(selectedUnit.lowercased())")
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
                 Text("~\(String(format: "%.2f", quantity * 59.20)) ₽")
@@ -409,7 +409,7 @@ struct GroceryCustomCell: View {
             Spacer()
             
             Button(action: {
-                quantity += 0.1
+                quantity += 1
             }) {
                 Image(systemName: "plus")
                     .foregroundColor(.white)
