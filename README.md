@@ -1,5 +1,5 @@
-## Grocery app
-#Technologies:
+### Grocery app
+##Technologies:
 - SwiftUI
 - MVVM
 - Realm
