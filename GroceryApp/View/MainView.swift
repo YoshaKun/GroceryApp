@@ -62,44 +62,8 @@ struct MainView: View {
             }
             
             // MARK: - Busket View
-            VStack {
-                Spacer()
-                
-                ZStack {
-                    RoundedRectangle(cornerRadius: 40)
-                        .frame(height: 130)
-                        .padding(.bottom, -55)
-                        .foregroundStyle(Color.white)
-                        .shadow(radius: 10)
-                    
-                    Button {
-                        
-                    } label: {
-                        ZStack {
-                            HStack {
-                                Image(.busket)
-                                    .foregroundColor(.white)
-                                    .padding(.leading, 20)
-                                
-                                Spacer()
-                                
-                                Text("190 ₽")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(.trailing, 20)
-                            }
-                            .frame(height: 50)
-                            .background(Color.customGreen)
-                            .cornerRadius(25)
-                            .padding(.horizontal, 16)
-                            
-                            Text("Корзина")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .padding(.bottom, -10)
-                }
+            if !viewModel.cartItems.isEmpty {
+                createBusketButton()
             }
         }
     }
@@ -120,11 +84,14 @@ struct MainView: View {
                 LazyVGrid(columns: listColumns, spacing: 8) {
                     ForEach(viewModel.groceryArray) { item in
                         VStack {
-                            GroceryCustomCell(isList: isList, item: item)
-                                .environmentObject(viewModel)
+                            if let itemState = viewModel.itemStates[item.id] {
+                                GroceryCustomCell(itemState: itemState, isList: isList, item: item)
+                                    .environmentObject(viewModel)
+                                
+                                Divider()
+                                    .background(Color.gray)
+                            }
                             
-                            Divider()
-                                .background(Color.gray)
                         }
                         
                     }
@@ -136,12 +103,58 @@ struct MainView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 8) {
                     ForEach(viewModel.groceryArray) { item in
-                        GroceryCustomCell(isList: isList, item: item)
-                            .environmentObject(viewModel)
+                        if let itemState = viewModel.itemStates[item.id] {
+                            GroceryCustomCell(itemState: itemState, isList: isList, item: item)
+                                .environmentObject(viewModel)
+                        }
+                        
                     }
                     .shadow(color: .gray.opacity(0.3), radius: 7)
                 }
                 .padding()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func createBusketButton() -> some View {
+        VStack {
+            Spacer()
+            
+            ZStack {
+                RoundedRectangle(cornerRadius: 40)
+                    .frame(height: 130)
+                    .padding(.bottom, -55)
+                    .foregroundStyle(Color.white)
+                    .shadow(radius: 10)
+                
+                Button {
+                    viewModel.clearBusket()
+                } label: {
+                    ZStack {
+                        HStack {
+                            Image(.busket)
+                                .foregroundColor(.white)
+                                .padding(.leading, 20)
+                            
+                            Spacer()
+                            
+                            Text("\(viewModel.calculateTotal(), specifier: "%.2f")" )
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.trailing, 20)
+                        }
+                        .frame(height: 50)
+                        .background(Color.customGreen)
+                        .cornerRadius(25)
+                        .padding(.horizontal, 16)
+                        
+                        Text("Корзина")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.bottom, -10)
             }
         }
     }

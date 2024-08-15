@@ -11,15 +11,10 @@ struct GroceryCustomCell: View {
     
     // MARK: - View model reference as Observable object
     @EnvironmentObject var viewModel: ViewModel
+    @ObservedObject var itemState: GroceryItemState
     
     let isList: Bool
     let item: GroceryItemModel
-    
-    @State var selectedUnit: String = "Кг"
-    @State var quantity: Double = 1
-    @State var isBusketHidden: Bool = false
-    @State var isSegmentedControlHidden: Bool = true
-    @State var isFav: Bool = false
     
     var body: some View {
         if isList {
@@ -52,7 +47,7 @@ struct GroceryCustomCell: View {
                         createTitleAndCountry()
                         createSegmentedControl()
                         
-                        if isBusketHidden {
+                        if itemState.isBusketHidden {
                             // MARK: - Segmented control
                             
                             chooseCountOfProduct()
@@ -93,7 +88,7 @@ struct GroceryCustomCell: View {
                 createTitleAndCountry()
                 createSegmentedControl()
                 
-                if isBusketHidden {
+                if itemState.isBusketHidden {
                     // MARK: - Segmented control
                     
                     chooseCountOfProduct()
@@ -205,10 +200,10 @@ struct GroceryCustomCell: View {
                     }
                     
                     Button {
-                        isFav.toggle()
+                        itemState.isFav.toggle()
                         
                     } label: {
-                        if isFav {
+                        if itemState.isFav {
                             Image(.favoriteSelected)
                                 .padding(10)
                         } else {
@@ -298,8 +293,8 @@ struct GroceryCustomCell: View {
     
     @ViewBuilder
     private func createSegmentedControl() -> some View {
-        var customOpacity = isSegmentedControlHidden ? 0 : 1
-        Picker("", selection: $selectedUnit) {
+        var customOpacity = itemState.isSegmentedControlHidden ? 0 : 1
+        Picker("", selection: $itemState.selectedUnit) {
             Text("Шт").tag("Шт")
             Text("Кг").tag("Кг")
         }
@@ -352,9 +347,10 @@ struct GroceryCustomCell: View {
             Spacer()
             
             Button {
+                viewModel.addToCart(item: item, quantity: 1, unit: itemState.selectedUnit)
                 withAnimation {
-                    isBusketHidden.toggle()
-                    isSegmentedControlHidden.toggle()
+                    itemState.isBusketHidden.toggle()
+                    itemState.isSegmentedControlHidden.toggle()
                 }
             } label: {
                 Image(.busket)
@@ -379,12 +375,14 @@ struct GroceryCustomCell: View {
     private func chooseCountOfProduct() -> some View {
         HStack {
             Button(action: {
-                if quantity > 1 {
-                    quantity -= 1
-                } else if quantity <= 1 {
+                if itemState.quantity > 1 {
+                    itemState.quantity -= 1
+                    viewModel.decrementQuantity(for: item)
+                } else if itemState.quantity <= 1 {
                     withAnimation {
-                        isBusketHidden.toggle()
-                        isSegmentedControlHidden.toggle()
+                        viewModel.decrementQuantity(for: item)
+                        itemState.isBusketHidden.toggle()
+                        itemState.isSegmentedControlHidden.toggle()
                     }
                 }
             }) {
@@ -397,10 +395,10 @@ struct GroceryCustomCell: View {
             Spacer()
             
             VStack {
-                Text("\(quantity, specifier: "%g") \(selectedUnit.lowercased())")
+                Text("\(itemState.quantity, specifier: "%g") \(itemState.selectedUnit.lowercased())")
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
-                Text("~\(String(format: "%.2f", quantity * 59.20)) ₽")
+                Text("~\(String(format: "%.2f", itemState.quantity * item.price)) ₽")
                     .foregroundColor(.white.opacity(0.7))
                     .font(.system(size: 12, weight: .medium))
             }
@@ -409,7 +407,8 @@ struct GroceryCustomCell: View {
             Spacer()
             
             Button(action: {
-                quantity += 1
+                itemState.quantity += 1
+                viewModel.addToCart(item: item, quantity: 1, unit: itemState.selectedUnit)
             }) {
                 Image(systemName: "plus")
                     .foregroundColor(.white)

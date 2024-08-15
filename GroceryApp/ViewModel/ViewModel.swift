@@ -6,88 +6,100 @@
 //
 
 import SwiftUI
+import Combine
+import RealmSwift
 
 class ViewModel: ObservableObject {
     @Published var isList: Bool = true
     @Published var cornerRadiusCell: CGFloat = 20
+    @Published var cartItems: [CartItemModel] = []
+    @Published var groceryArray: [GroceryItemModel]
+    @Published var itemStates: [UUID: GroceryItemState] = [:]
     
-    let titlesArray: [String] = [
-        "сыр Ламбер 500 / 0 230г",
-        "Энергетический Напит",
-        "Салат Овощной с Крабовыми Палочками",
-        "Дорадо Охлажденная Непотрошеная 300-400г",
-        "Ролл Маленькая Япония 216г",
-        "Огурцы тепличные cадово-огородные",
-        "Манго Кео",
-        "Салат Овощной с Крабовыми Палочками",
-        "Салат Овощной с Крабовыми Палочками",
-        "Масло Слобода Рафинированное 1,8л",
-        "Салат Овощной с Крабовыми Палочками",
-        "Макаронные Изделия SPAR Спагетти 450г",
-        "Огурцы тепличные cадово-огородные",
-        "Огурцы тепличные cадово-огородные",
-        "Огурцы тепличные cадово-огородные",
-        "Дорадо Охлажденная Непотрошеная 300-400г",
-        "Энергетический Напиток AdrenaIine Rush 0,449л ж/б",
-        "Манго Кео",
-        "сыр Ламбер 500/0 230г",
-        "сыр Ламбер 500/0 230г",
-        "сыр Ламбер 500/0 230г",
-        "сыр Ламбер 500/0 230г"
-    ]
+    // MARK: - REALM Instance member
+    private var realm = try! Realm()
     
-    let priceArray: [Double] = [
-        99.90,
-        95699.90,
-        250.90,
-        99.90,
-        367.90,
-        99.90,
-        1298.90,
-        120.90,
-        1298.90,
-        1298.90,
-        250.00,
-        2600.90,
-        120.90,
-        120.90,
-        99.90,
-        120.90,
-        99.90,
-        95699.90,
-        95699.90,
-        95699.90,
-        95699.90,
-        95699.90
-    ]
-    
-    private func generateGroceryItems() -> [GroceryItemModel] {
-        var groceryArray: [GroceryItemModel] = []
-        
-        for i in 0..<20 {
-            let item = GroceryItemModel(
-                image: Image("Image_\(i % 10)"), // используем остаток от деления для разнообразия картинок
-                title: "Продукт \(i + 1)",
-                rating: Double.random(in: 3.0...5.0),
-                reviewsCount: Int.random(in: 10...100),
-                manufacturerName: i % 2 == 0 ? "Производитель \(i + 1)" : nil, // через раз есть название производителя
-                manufacturerImage: i % 2 == 0 ? "🇷🇺" : nil, // через раз есть иконка производителя
-                price: Double.random(in: 50.0...1000.0),
-                oldPrice: Double.random(in: 100.0...2000.0),
-                discountPercent: Int.random(in: 5...30),
-                isFavorite: Bool.random(),
-                isNew: Bool.random(),
-                isHitToPrices: Bool.random(),
-                isPriceByCard: Bool.random()
-            )
-            
-            groceryArray.append(item)
+    init() {
+        self.groceryArray = mokGroceriesArray
+        self.initializeStates(for: mokGroceriesArray)
+    }
+
+    private func initializeStates(for items: [GroceryItemModel]) {
+        for item in items {
+            itemStates[item.id] = GroceryItemState()
         }
-        
-        return groceryArray
+    }
+
+    // MARK: - Loading Items in Busket
+    func loadCartItems() {
+        let items = realm.objects(CartItemModel.self)
+        cartItems = Array(items)
+    }
+
+    // MARK: - Adding items in Busket
+    func addToCart(item: GroceryItemModel, quantity: Double, unit: String) {
+        if let existingItem = cartItems.first(where: { $0.itemID == item.id.uuidString }) {
+            try! realm.write {
+                existingItem.quantity += quantity
+            }
+        } else {
+            let cartItem = CartItemModel()
+            cartItem.itemID = item.id.uuidString
+            cartItem.itemName = item.title
+            cartItem.unit = unit
+            cartItem.quantity = quantity
+            cartItem.price = item.price
+            
+            try! realm.write {
+                realm.add(cartItem)
+            }
+        }
+        loadCartItems()
     }
     
-    let groceryArray: [GroceryItemModel] = [
+    func decrementQuantity(for item: GroceryItemModel) {
+        if let cartItem = cartItems.first(where: { $0.itemID == item.id.uuidString }) {
+            try! realm.write {
+                if cartItem.quantity > 1 {
+                    cartItem.quantity -= 1
+                } else if cartItem.quantity <= 1 {
+                    realm.delete(cartItem)
+                }
+            }
+            loadCartItems()
+        }
+    }
+    
+    func clearBusket() {
+        do {
+            let allItems = realm.objects(CartItemModel.self)
+            try realm.write {
+                realm.delete(allItems)
+            }
+            print("Cart cleared successfully.")
+        } catch let error {
+            print("Failed to clear cart: \(error.localizedDescription)")
+        }
+    }
+    
+    func removeFromCart(item: CartItemModel) {
+        try! realm.write {
+            realm.delete(item)
+        }
+        loadCartItems()
+    }
+    
+    func calculateTotal() -> Double {
+        let sum = cartItems.reduce(0) { $0 + $1.price * $1.quantity }
+        return sum
+    }
+    
+    func calculateTotalItems() -> Int {
+        return cartItems.count
+    }
+    
+    // MARK: - MOK Model
+    private let mokGroceriesArray: [GroceryItemModel] = [
         GroceryItemModel(
             image: Image("Image_0"),
             title: "сыр Ламбер 500/0 230г",

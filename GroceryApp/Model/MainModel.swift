@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import RealmSwift
 
+// MARK: - Model of Products
 struct GroceryItemModel: Identifiable {
     let id = UUID()
     let image: Image
@@ -24,8 +26,45 @@ struct GroceryItemModel: Identifiable {
     let isPriceByCard: Bool
 }
 
-// MARK: - Additional Methods and Views
+// MARK: - Model of items for adding to Busket and saving in Realm
+class CartItemModel: Object, Identifiable {
+    @objc dynamic var id: String = UUID().uuidString
+    @objc dynamic var itemID: String = ""
+    @objc dynamic var itemName: String = ""
+    @objc dynamic var unit: String = "Кг"
+    @objc dynamic var quantity: Double = 1.0
+    @objc dynamic var price: Double = 0.0
 
+    override static func primaryKey() -> String? {
+        return "id"
+    }
+}
+
+// MARK: - Model for saving states of Cells
+class GroceryItemState: ObservableObject {
+    @Published var selectedUnit: String
+    @Published var quantity: Double
+    @Published var isBusketHidden: Bool
+    @Published var isSegmentedControlHidden: Bool
+    @Published var isFav: Bool
+
+    init(
+        selectedUnit: String = "Кг",
+        quantity: Double = 1,
+        isBusketHidden: Bool = false,
+        isSegmentedControlHidden: Bool = true,
+        isFav: Bool = false
+    ) {
+        self.selectedUnit = selectedUnit
+        self.quantity = quantity
+        self.isBusketHidden = isBusketHidden
+        self.isSegmentedControlHidden = isSegmentedControlHidden
+        self.isFav = isFav
+    }
+}
+
+
+// MARK: - Additional Methods and Views
 struct CustomRoundedRectangle: Shape {
     var corners: UIRectCorner
     var radius: CGFloat

@@ -16,7 +16,23 @@
 		6BFC14FF2C6C8FC7007466AA /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFC14FE2C6C8FC7007466AA /* MainView.swift */; };
 		6BFC15012C6C96BA007466AA /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFC15002C6C96BA007466AA /* ViewModel.swift */; };
 		6BFC15032C6D373B007466AA /* GroceryCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFC15022C6D373B007466AA /* GroceryCustomCell.swift */; };
+		6BFC150B2C6DF78C007466AA /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 6BFC150A2C6DF78C007466AA /* RealmSwift */; };
+		6BFC150C2C6DF831007466AA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 6BFC150A2C6DF78C007466AA /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6BFC150D2C6DF831007466AA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6BFC150C2C6DF831007466AA /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6BFC14E12C6C8F10007466AA /* GroceryApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GroceryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -36,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BFC150B2C6DF78C007466AA /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,12 +133,16 @@
 				6BFC14DD2C6C8F10007466AA /* Sources */,
 				6BFC14DE2C6C8F10007466AA /* Frameworks */,
 				6BFC14DF2C6C8F10007466AA /* Resources */,
+				6BFC150D2C6DF831007466AA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = GroceryApp;
+			packageProductDependencies = (
+				6BFC150A2C6DF78C007466AA /* RealmSwift */,
+			);
 			productName = GroceryApp;
 			productReference = 6BFC14E12C6C8F10007466AA /* GroceryApp.app */;
 			productType = "com.apple.product-type.application";
@@ -150,6 +171,9 @@
 				Base,
 			);
 			mainGroup = 6BFC14D82C6C8F10007466AA;
+			packageReferences = (
+				6BFC15072C6DF78C007466AA /* XCRemoteSwiftPackageReference "realm-swift" */,
+			);
 			productRefGroup = 6BFC14E22C6C8F10007466AA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -388,6 +412,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6BFC15072C6DF78C007466AA /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6BFC150A2C6DF78C007466AA /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6BFC15072C6DF78C007466AA /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		6BFC14EF2C6C8F12007466AA /* GroceryApp.xcdatamodeld */ = {
